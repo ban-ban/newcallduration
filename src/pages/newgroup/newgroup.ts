@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ViewController } from 'ionic-angular';
-import { Contacts, Contact, ContactField, ContactName } from '@ionic-native/contacts';
+import { NavController, NavParams, ViewController, AlertController } from 'ionic-angular';
+import { Contacts, Contact } from '@ionic-native/contacts';
 import { Storage } from '@ionic/storage';
 
 
@@ -26,7 +26,7 @@ export class NewGroupPage {
     myContacts: Contact[];
     
 
-    constructor(public navCtrl: NavController, public navParams: NavParams,private storage: Storage,private contacts: Contacts, private viewCtrl: ViewController, private _groupList:GroupListService) {
+    constructor(public navCtrl: NavController, public alertCtrl: AlertController,public navParams: NavParams,private storage: Storage,private contacts: Contacts, private viewCtrl: ViewController, private _groupList:GroupListService) {
       
       this.groupName="";
       this.modifiedGroupName=this.groupName;
@@ -41,13 +41,51 @@ export class NewGroupPage {
       this.ids=[];
       
     }
+
+    showInitialAlert(){
+      const confirm = this.alertCtrl.create({
+        title: "Autorisation",
+        message: "L'application Call Duration a besoin d'accéder à vos contacts pour calculer le temps de communication. Elle ne conserve pas vos contacts sur un serveur mais uniquement sur votre téléphone. Elle n'utilise pas vos contacts à des fins commerciales."+"\n"+"Veuillez autoriser l'accès aux contacts.",
+        buttons: [
+          {
+            text: 'Ok',
+            handler: () => {
+              console.log('ok clicked');
+              this.contacts.find(['displayName'], {filter: this.searchName}).then((results)=>{
+                this.myContacts=results;
+                //console.log(results);
+              });
+            }
+          }
+          ,
+          {
+            text: 'Cancel',
+            handler: () => {
+              console.log('cancel clicked');
+              
+            }
+          }
+        ]
+      });
+      confirm.present();
+    }
+  
    
     findContacts(){
         this.myContacts=[];
-        this.contacts.find(['displayName'], {filter: this.searchName}).then((results)=>{
-            this.myContacts=results;
-            //console.log(results);
-        });
+         
+                this.contacts.find(['displayName'], {filter: this.searchName}).then((results)=>{
+                  this.myContacts=results;
+                
+                })
+                .catch ((err)=>{
+                  //contacts not authorized yet
+                  console.log("err =" + err);
+                  alert(" contacts not yet authorized ");
+                
+              
+              });
+        
     }
   
 

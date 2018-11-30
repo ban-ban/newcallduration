@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams, ModalController } from 'ionic-angular';
+import { NavController, NavParams, ModalController, AlertController } from 'ionic-angular';
+import { Contacts } from '@ionic-native/contacts';
 import { GroupPage } from '../group/group' ;
 import { NewGroupPage } from '../newgroup/newgroup' ;
 import { Storage } from '@ionic/storage';
@@ -20,36 +21,43 @@ export class HomePage {
   oldMonth:number;  //ms from epoch
   oldDuration: boolean;
   oldYear:boolean;
+  initial:boolean;
 
   myMonth:number; //index to use with Months
   Months: String[]=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
    
  
 
-  constructor(public navCtrl: NavController,public navParams: NavParams,private storage: Storage, private _groupList: GroupListService,private modalCtrl:ModalController) {
+  constructor(public navCtrl: NavController,public navParams: NavParams,private storage: Storage, private _groupList: GroupListService,private modalCtrl:ModalController,private contacts: Contacts, private alertCtrl: AlertController) {
     this.storage.ready().then(()=>{
       this.storage.get("groupList").then((data)=>{
       console.log("constructor home, storage results");
       
       if (data!=null){
+        this.initial=false;
         console.log("data from storage:  ", data);
         //alert("constructor home : data from storage");
+
         this.groupList=data;
         this._groupList.loadGroupList(data); //fill _groupList
         this.setDates();
-        this.oldDuration=true; //current month used for calculations
+        this.oldDuration=false; //current month used for calculations
         this._groupList.loadDate(this.startMonth,this.oldStartMonth, this.oldDuration);
         this.refreshDuration();
       }
       else {
+        this.initial=true;
         console.log("data =null");
-       // alert("constructor home: data storage null");
+        // alert("constructor home: data storage null");
+        //alert("L'application Call Duration a besoin d'accéder à vos contacts pour calculer le temps de communication. Elle ne conserve pas vos contacts sur un serveur mais uniquement sur votre téléphone. Elle n'utilise pas vos contacts à des fins commerciales."+"\n"+"Veuillez autoriser l'accès aux contacts puis relancer l'application");
+        
         this.groupList=[];
         this._groupList.loadGroupList([]); //initialize empty _groupList
         this.setDates();
         this.oldDuration=false; //current month used for calculations
         this._groupList.loadDate(this.startMonth,this.oldStartMonth, this.oldDuration);
         //this.storage.set("groupList",this.groupList);
+        this.showInitialAlert();
       }
       })
       .catch ((err)=>{
@@ -94,6 +102,34 @@ export class HomePage {
 
   }
 
+  showInitialAlert(){
+    const confirm = this.alertCtrl.create({
+      title: "Autorisation",
+      message: "L'application Call Duration a besoin d'accéder à vos contacts pour calculer le temps de communication. Elle ne conserve pas vos contacts sur un serveur mais uniquement sur votre téléphone. Elle n'utilise pas vos contacts à des fins commerciales."+"\n"+"Veuillez autoriser l'accès aux contacts.",
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            console.log('ok clicked');
+            this.contacts.find(['displayName'], {filter: "a"}).then((results)=>{
+              // just to test authorization of Contacts
+            });
+          }
+        },
+        {
+          text: 'Cancel',
+          handler: () => {
+            console.log('cancel clicked');
+            this.contacts.find(['displayName'], {filter: "a"}).then((results)=>{
+              // just to test authorization of Contacts
+            });
+          }
+        }
+      ]
+    });
+    confirm.present();
+  }
+
   ionViewDidLoad (){
     
 
@@ -106,6 +142,7 @@ export class HomePage {
    modal.onDidDismiss((cancel:boolean)=>{
      if (cancel) {}
      else {
+       this.initial=false;
        this.groupList=this._groupList.returnGroupList();
      }
 

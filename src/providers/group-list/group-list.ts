@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
+import { AlertController } from 'ionic-angular';
+
 import { Group } from '../../interfaces/group.interface' ;
 import { CallLog, CallLogObject } from '@ionic-native/call-log';
-import { Contacts, Contact, ContactField, ContactName } from '@ionic-native/contacts';
+import { Contacts } from '@ionic-native/contacts';
 
 
 @Injectable()
@@ -14,7 +16,7 @@ export class GroupListService {
   //members :string[];
   
 
-  constructor(private callLog: CallLog, private contacts:Contacts) {
+  constructor(private callLog: CallLog, private contacts:Contacts, public alertCtrl:AlertController) {
     console.log("constructor of group-list");
     this.startDate="";
     this.oldStartDate="";
@@ -23,6 +25,34 @@ export class GroupListService {
     //this.members=[];
   
   }
+
+  showInitialLogAlert(){
+    const confirm = this.alertCtrl.create({
+      title: "Autorisation",
+      message: "L'application Call Duration a besoin d'accéder au journal d'appels pour calculer le temps de communication. ELLE N'EFFECTUE ET NE GERE AUCUN APPEL. Elle ne conserve pas vos données d'appel. Elle n'utilise pas vos données d'appel à des fins commerciales."+"\n"+"Veuillez autoriser la gestion d'appels pour pouvoir accéder au journal d'appel.",
+      buttons: [
+        {
+          text: 'Ok',
+          handler: () => {
+            console.log('ok clicked');
+            this.callLog.requestReadPermission()
+
+            .then(()=>{});
+           
+          }
+        },
+        {
+          text: 'Cancel',
+          handler: () => {
+            console.log('cancel clicked');
+           
+          }
+        }
+      ]
+    });
+    confirm.present();
+  }
+
   loadDate(start:number,old:number,oldDuration:boolean){
     this.startDate=start.toString();
     this.oldStartDate=old.toString();
@@ -36,6 +66,10 @@ export class GroupListService {
 
   returnGroupList(){
     return this._groupList ;
+  }
+
+  returnLength(){
+    return this._groupList.length;
   }
 
   removeGroup(index: number){
@@ -57,15 +91,16 @@ export class GroupListService {
       //first time add a group
       console.log("groupList  empty");
       this._groupList[0]= newGroup;
-      //this.calculateDuration(0);
+      this.showInitialLogAlert();
+      return this.calculateDuration(0);
     }
     else {
       console.log("groupList not empty");
       this._groupList.unshift(newGroup); //concatenate at the beginning of the array
-      //this.calculateDuration(0);
+      return this.calculateDuration(0);
     }
 
-    return this.calculateDuration(0);
+    //return this.calculateDuration(0);
   }
 
   returnGroup(index: number){
@@ -113,10 +148,20 @@ export class GroupListService {
   //  let filters: CallLogObject[] =[ {name: "number", value: ["+33651687613","+33675374400"], operator: "==" } ,
    //                   {name:"date", value:"1541026800000", operator: ">="}];
     
-    let filters: CallLogObject[] =[ {name: "number", value: this._groupList[index].phoneNumbers, operator: "==" } ,
-                      {name:"date", value:this.startDate, operator: ">="}];
-    
+   let filters: CallLogObject[];
 
+    if (this.oldDuration) {
+      filters =[ {name: "number", value: this._groupList[index].phoneNumbers, operator: "==" } ,
+      {name:"date", value:this.oldStartDate, operator: ">="}, {name:"date", value:this.startDate, operator: "<"}];
+
+    }
+    else{
+      filters =[ {name: "number", value: this._groupList[index].phoneNumbers, operator: "==" } ,
+      {name:"date", value:this.startDate, operator: ">="}];
+
+    }
+
+    
   //or this.callLog.hasReadPermission()
     this.callLog.requestReadPermission()
 
@@ -141,7 +186,7 @@ export class GroupListService {
     })
     .catch((err)=>{
         
-        alert("error requestcalLog");
+      this.showInitialLogAlert();
         
         //return this._groupList;
       });

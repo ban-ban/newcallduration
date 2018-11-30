@@ -26,8 +26,11 @@
     <div item-end><h2>change month</h2></div></button>
   
   <ion-list>
+    <ion-item *ngIf="initial" (click)="addGroup()">
+      <h2 item-start>ex: NOM DU GROUPE</h2>
+      <h2 item-end>{{16320 | hminSeconds}}</h2>
       
-
+    </ion-item>
     <ion-item *ngFor="let group of groupList; let i=index" (click)="openPage(i)">
       <h2 item-start>{{group.name}}</h2>
       <h2 item-end>{{group.duration | hminSeconds}}</h2>
