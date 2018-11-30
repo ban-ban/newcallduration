@@ -1,0 +1,7 @@
+{
+  "name": "callduration",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic-angular"
+}

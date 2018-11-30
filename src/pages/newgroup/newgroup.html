@@ -1,0 +1,64 @@
+
+<ion-header>
+
+    <ion-navbar>
+            <ion-buttons left>
+                    <button ion-button (click)="dismissModal()">
+                    <ion-icon name="arrow-back"></ion-icon> 
+                </button>
+            </ion-buttons>
+            <ion-title text-center>Groupe : {{modifiedGroupName}}</ion-title>
+    </ion-navbar>
+        
+</ion-header>
+        
+        
+<ion-content padding>
+          
+        <ion-card padding><h2>NOM</h2>
+        </ion-card>
+            
+        <ion-item>
+            <ion-input placeholder="nom du groupe"  [(ngModel)]="modifiedGroupName"></ion-input>
+               
+        </ion-item> 
+    
+        <ion-card>
+              <button ion-item (click)="addMember()">
+                <ion-icon name="add" item-end></ion-icon>
+                MEMBRES
+              </button>
+        </ion-card>   
+      
+        <ion-list>
+          <ion-item *ngFor="let member of members; let i = index">
+              {{member}}
+              <ion-icon name="remove" item-end tappable (click)="removeMember(i)"></ion-icon>
+          </ion-item>
+
+          <ion-item>
+                <ion-input *ngIf="plus" [disabled]="readOnly" placeholder="nom du membre" (input)="findContacts()" 
+          [(ngModel)]="searchName"></ion-input>
+                
+          </ion-item> 
+
+ 
+          <div *ngFor="let contact of myContacts ; let j = index">
+                <ion-item *ngIf="plus" tappable (click)="selectContact(j)">
+                {{this.contact.displayName}} 
+                </ion-item>
+          </div>
+           
+                
+        </ion-list>
+
+        <ion-grid>
+            <ion-row>
+                <button ion-button full color="primary" (click)="createGroup()">Creer le groupe</button>
+            </ion-row>
+        </ion-grid>
+       
+    </ion-content>
+   
+
+      

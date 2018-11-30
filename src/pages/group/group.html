@@ -1,0 +1,83 @@
+
+<ion-header>
+
+  <ion-navbar>
+    <ion-buttons left>
+          <button ion-button (click)="dismissModal()">
+          <ion-icon name="arrow-back"></ion-icon> 
+      </button>
+    </ion-buttons>
+    <ion-title text-center>Groupe : {{modifiedGroupName}}</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  
+    <ion-card padding><h2 >NOM</h2>
+    </ion-card>
+    
+    <ion-item>
+        <ion-input [placeholder]="modifiedGroupName" [(ngModel)]="modifiedGroupName"></ion-input>
+       
+    </ion-item> 
+  
+
+  
+    <ion-card>
+            <button ion-item (click)="addMember()">
+              <ion-icon name="add" item-end></ion-icon>
+              MEMBRES
+            </button>
+      </ion-card>   
+
+    <ion-list>  
+ <!--       <ion-item-divider no-padding >
+                    <button ion-button full (click)="addMember()"><h2>MEMBRES</h2>
+                        <ion-icon item-end name="add" ></ion-icon>
+                    </button>
+        </ion-item-divider>
+-->
+     <ion-item *ngFor="let member of members; let i = index">
+        {{member}}
+        <ion-icon name="remove" item-end tappable (click)="removeMember(i)"></ion-icon>
+    </ion-item>
+    <ion-item>
+        <ion-input *ngIf="plus" [disabled]="readOnly" placeholder="nom du membre" (input)="findContacts()" 
+  [(ngModel)]="searchName"></ion-input>    
+    </ion-item> 
+<!-- 
+    <ion-item *ngIf="(this.myContacts.length > 0) && plus" (click)="selectContact(0)">
+        {{this.myContacts[0].displayName}} 
+    </ion-item>
+    <ion-item *ngIf="(this.myContacts.length > 1) && plus" (click)="selectContact(1)">
+          {{this.myContacts[1].displayName}} 
+    </ion-item>
+    <ion-item *ngIf="(this.myContacts.length > 2) && plus" (click)="selectContact(2)">
+          {{this.myContacts[2].displayName}} 
+    </ion-item>
+    <ion-item *ngIf="(this.myContacts.length > 3) && plus" (click)="selectContact(3)">
+        {{this.myContacts[3].displayName}} 
+    </ion-item>
+    <ion-item *ngIf="(this.myContacts.length > 4) && plus" (click)="selectContact(4)">
+        {{this.myContacts[4].displayName}} 
+    </ion-item>
+    <ion-item *ngIf="(this.myContacts.length > 5) && plus" (click)="selectContact(5)">
+        {{this.myContacts[5].displayName}} 
+    </ion-item>
+     -->
+    <div *ngFor="let contact of myContacts ; let j = index">
+          <ion-item *ngIf="plus" tappable (click)="selectContact(j)">
+          {{this.contact.displayName}} 
+          </ion-item>
+    </div>
+ 
+  </ion-list>
+  <ion-grid>
+      <ion-row>
+          <button ion-button full color="primary" (click)="updateGroup()"> Enregistrer les modifications</button>
+      </ion-row>
+  </ion-grid>
+ 
+</ion-content>
